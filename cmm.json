@@ -1,0 +1,37 @@
+{
+  "name": "ColorManagement",
+  "types": [{
+      "name": "RGBPixel",
+      "fields": [
+        { "name": "blue", "type": "ubyte" },
+        { "name": "green", "type": "ubyte" },
+        { "name": "red", "type": "ubyte" }
+      ]
+    },
+    {
+      "name": "YUVPixel",
+      "fields": [
+        { "name": "y", "type": "ubyte" },
+        { "name": "u", "type": "ubyte" },
+        { "name": "v", "type": "ubyte" }
+      ]
+    }],
+  "functions": [{
+    "name": "rgb_to_yuv",
+    "arguments": [
+      { "name": "aWidth", "type": "int", "argType": "in" },
+      { "name": "aHeight", "type": "int", "argType": "in" },
+      { "name": "aBufferIn", "type": { "arrayType": "RGBPixel" }, "memoryType": "global", "argType": "in" },
+      { "name": "aBufferOut", "type": { "arrayType": "YUVPixel" }, "memoryType": "global", "argType": "out" }
+    ]
+  },
+  {
+    "name": "yuv_to_rgb",
+    "arguments": [
+      { "name": "aWidth", "type": "int", "argType": "in" },
+      { "name": "aHeight", "type": "int", "argType": "in" },
+      { "name": "aBufferIn", "type": { "arrayType": "YUVPixel" }, "memoryType": "global", "argType": "in" },
+      { "name": "aBufferOut", "type": { "arrayType": "RGBPixel" }, "memoryType": "global", "argType": "out" }
+    ]
+  }]
+}
