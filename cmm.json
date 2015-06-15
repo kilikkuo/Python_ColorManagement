@@ -11,9 +11,9 @@
     {
       "name": "YUVPixel",
       "fields": [
-        { "name": "y", "type": "ubyte" },
-        { "name": "u", "type": "ubyte" },
-        { "name": "v", "type": "ubyte" }
+        { "name": "y", "type": "float" },
+        { "name": "u", "type": "float" },
+        { "name": "v", "type": "float" }
       ]
     }],
   "functions": [{
