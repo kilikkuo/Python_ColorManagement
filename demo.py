@@ -3,8 +3,9 @@ import pyopencl as cl
 import math
 from time import time, sleep
 from PIL import Image
-from RGB_XYZ import RGBtoXYZ, XYZtoRGB
 from ColorChannelInst import ColorChannelInstance, DisplayCCInst
+from EXIF_ColorProfileParser import get_exif_by_exifread, get_exif_by_PIL
+from RGB_XYZ import XYZtoRGB, RGBtoXYZ
 
 def loadImage(path):
     img = Image.open(path)
@@ -28,7 +29,7 @@ def rgb_to_yuv_to_rgb_cpu(image):
             b = min(255, max(0, int(Y + 2.03*U)))
             ld[x,y] = r,g,b
     image.show()
-    pass 
+    pass
 
 def rgb_to_yuv_to_rgb_gpu(img):
     from ColorManagement import ColorManagement
@@ -37,7 +38,7 @@ def rgb_to_yuv_to_rgb_gpu(img):
     imgSize = img.size[0] * img.size[1]
     bufferIn = cmm.createBufferData(ColorManagement.RGBPixel, lstData=img.getdata())
     bufferOut = cmm.createBufferData(ColorManagement.YUVPixel, imgSize)
-    
+
     final = cmm.createBufferData(ColorManagement.RGBPixel, imgSize)
     cmm.rgb_to_yuv((img.size[0], img.size[1]), None,\
                    img.size[0], img.size[1], bufferIn, bufferOut)
@@ -51,7 +52,8 @@ def rgb_to_yuv_to_rgb_gpu(img):
     pass
 
 def main():
-    img = loadImage("./Sample.JPG")
+    fPath = "./Sample.JPG"
+    img = loadImage(fPath)
     oriImg = ColorChannelInstance(img.size[0], img.size[1], img)
     DisplayCCInst(XYZtoRGB(RGBtoXYZ(oriImg)))
     #rgb_to_yuv_to_rgb_gpu(img)

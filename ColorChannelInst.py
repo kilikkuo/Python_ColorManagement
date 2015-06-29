@@ -1,13 +1,16 @@
 import PIL
 from PIL import Image
 
+WPD65 = 'D65'
+WPD50 = 'D50'
+
 def DisplayCCInst(ccInst):
     img = Image.new('RGB', ccInst.size)
     img.putdata(ccInst.data)
     img.show()
 
 class ColorChannelInstance:
-    def __init__(self, width, height, img=None, comp='RGB', ws='sRGB'):
+    def __init__(self, width, height, img=None, comp='RGB', ws='sRGB', wp=WPD65):
         self.data = []
         if img and img.__class__.__name__ in ["JpegImageFile", "PngImageFile"]:
             assert ((width, height)==img.size)
@@ -15,11 +18,15 @@ class ColorChannelInstance:
 
         self.__width = width
         self.__height = height
+        self.__whitePoint = wp
         self.size = self.__width, self.__height
         self.mode = comp
         self.workSpace = ws
         if len(self.data)==0 and not img:
             self.data = [(0,0,0)]*width*height
+
+    def getWP():
+        return self.__whitePoint
 
     def __getitem__(self, tupIndex):
         assert (type(tupIndex)==tuple and len(tupIndex)==2)
