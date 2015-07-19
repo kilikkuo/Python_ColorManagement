@@ -1,7 +1,7 @@
 # D50 <=> D65
 #http://ninedegreesbelow.com/photography/srgb-color-space-to-profile.html
 #http://www.brucelindbloom.com/index.html?Eqn_ChromAdapt.html
-
+from ColorChannelInst import WPD65, WPD50
 
 D65toD50_XYZScaling = [[1.0144665, 0.0000000, 0.0000000],
                        [0.0000000, 1.0000000, 0.0000000],
@@ -19,6 +19,19 @@ D50toD65_Bradford = [[0.9555766, -0.0230393, 0.0631636],
                      [-0.0282895, 1.0099416, 0.0210077],
                      [0.0122982, -0.0204830, 1.3299098]]
 
+dicXYZScaling = { WPD65 : { WPD50 : D65toD50_XYZScaling },
+                  WPD50 : { WPD65 : D50toD65_XYZScaling }}
+dicBradford = { WPD65 : { WPD50 : D65toD50_Bradford },
+                WPD50 : { WPD65 : D50toD65_Bradford }}
+
+dicChromaticAdaptation = { 'XYZScaling' : dicXYZScaling,
+                           'Bradford'   : dicBradford}
+
+def getChromaticAdaptationMat(method, fromWP, toWP):
+    if fromWP == toWP:
+        return []
+    mat = dicChromaticAdaptation.get(method, {}).get(fromWP, {}).get(toWP, [])
+    return mat
 # exif tag definition.
 #http://www.media.mit.edu/pia/Research/deepview/exif.html
 
