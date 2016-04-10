@@ -25,7 +25,7 @@ class ColorChannelInstance:
         if len(self.data)==0 and not img:
             self.data = [(0,0,0)]*width*height
 
-    def getWP():
+    def getWP(self):
         return self.__whitePoint
 
     def __getitem__(self, tupIndex):
