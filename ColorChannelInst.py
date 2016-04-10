@@ -4,6 +4,11 @@ from PIL import Image
 WPD65 = 'D65'
 WPD50 = 'D50'
 
+WORKSPACE_CIEXYZ        = 'CIEXYZ'
+WORKSPACE_sRGB          = 'sRGB'
+WORKSPACE_AdobeRGB      = 'AdobeRGB'
+WORKSPACE_ProPhotoRGB   = 'ProPhotoRGB'
+
 def DisplayCCInst(ccInst):
     img = Image.new('RGB', ccInst.size)
     img.putdata(ccInst.data)
@@ -21,12 +26,15 @@ class ColorChannelInstance:
         self.__whitePoint = wp
         self.size = self.__width, self.__height
         self.mode = comp
-        self.workSpace = ws
+        self.__workSpace = ws
         if len(self.data)==0 and not img:
             self.data = [(0,0,0)]*width*height
 
-    def getWP(self):
+    def getWhitePoint(self):
         return self.__whitePoint
+
+    def getWorkSpace(self):
+        return self.__workSpace
 
     def __getitem__(self, tupIndex):
         assert (type(tupIndex)==tuple and len(tupIndex)==2)

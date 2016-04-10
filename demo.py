@@ -3,9 +3,9 @@ import pyopencl as cl
 import math
 from time import time, sleep
 from PIL import Image
-from ColorChannelInst import ColorChannelInstance, DisplayCCInst
+from ColorChannelInst import ColorChannelInstance, DisplayCCInst, WPD50, WPD65
 from EXIF_ColorProfileParser import get_exif_by_exifread, get_exif_by_PIL
-from RGB_XYZ import XYZtoRGB, RGBtoXYZ
+from RGB_XYZ import XYZtoRGB, RGBtoXYZ, XYZ_WPTransform
 
 def loadImage(path):
     img = Image.open(path)
@@ -55,7 +55,7 @@ def main():
     fPath = "./Sample.JPG"
     img = loadImage(fPath)
     oriImg = ColorChannelInstance(img.size[0], img.size[1], img)
-    DisplayCCInst(XYZtoRGB(RGBtoXYZ(oriImg)))
+    DisplayCCInst(XYZtoRGB(XYZ_WPTransform(RGBtoXYZ(oriImg)), ws='ProPhotoRGB', wp=WPD50))
     #rgb_to_yuv_to_rgb_gpu(img)
     #rgb_to_yuv_to_rgb_cpu(img)
     pass
