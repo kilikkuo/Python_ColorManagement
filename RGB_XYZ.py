@@ -1,3 +1,4 @@
+# http://www.brucelindbloom.com/index.html?Eqn_RGB_XYZ_Matrix.html
 from ColorChannelInst import ColorChannelInstance, WPD65, WPD50
 from EXIF_ColorProfileParser import getChromaticAdaptationMat
 """
@@ -88,10 +89,12 @@ def RGBtoXYZ(ccInst):
     inputGamma = dictGammaValue.get(inputWS, 0)
 
     if not matrix or inputGamma == 0:
-        assert False, "No matching inputr matrix - %s / %s / %f "%(inputWS, inputWP, inputGamma)
+        assert False, "No matching inputr matrix - %s / %s / %f "%(inputWS,\
+            inputWP, inputGamma)
         return None
 
-    newCCInst = ColorChannelInstance(w, h, None, comp='XYZ', ws='CIEXYZ', wp=inputWP)
+    newCCInst = ColorChannelInstance(w, h, None, comp='XYZ', ws='CIEXYZ',\
+                                     wp=inputWP)
     for y in range(h):
         for x in range(w):
             R,G,B = ccInst[x,y]
@@ -128,7 +131,7 @@ def XYZ_WPTransform(ccInst, targetWP=WPD65):
             Yd = sum(map(lambda x,y:x*y, [Xs, Ys, Zs], matrix[1]))
             Zd = sum(map(lambda x,y:x*y, [Xs, Ys, Zs], matrix[2]))
 
-            newCCInst[x,y] = Xd, Yd, Zd
+            newCCInst[x,y] = fixNormalBoundary(Xd), fixNormalBoundary(Yd), fixNormalBoundary(Zd)
 
     return newCCInst
 
