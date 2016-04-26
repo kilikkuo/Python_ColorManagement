@@ -1,7 +1,8 @@
+BYTE_ALIGN_INTEL    = 0x4949
+BYTE_ALIGN_MOTOROLA = 0x4d4d
 
 # Start Of Frame N
 # N indicates the compression process, only SOF0~SOF2 are commonly used.
-
 # Nondifferential Huffman-coding frames
 JPEG_SOF0   = 0xc0 # Baseline DCT
 JPEG_SOF1   = 0xc1 # Extended sequential DCT
@@ -34,54 +35,104 @@ JPEG_APP13  = 0xed
 
 class JPEGMetadataParser:
     def __init__(self):
+        self._file = None
         pass
 
-    def parse(self, filePath):
-        def getcToOrd(fileObj):
-            c = fileObj.read(1)
-            if c == '':
-                return -1
-            return ord(c)
-        def getLen(fObj, order=0x4d4d): # 0x4d4d for MM / 0x4949 for II.
-            lenLow = getcToOrd(fObj)
-            lenHigh = getcToOrd(fObj)
-            if order == 0x4d4d:
-                return lenLow << 8 | lenHigh
-            else:
-                return lenLow | lenHigh << 8
+    def __getcToOrd(self):
+        if not self._file:
+            assert False
+        c = self._file.read(1)
+        if c == '':
+            return -1
+        return ord(c)
 
-        fObj = open(filePath)
-        fObj.seek(0)
-        first = getcToOrd(fObj)
-        marker = getcToOrd(fObj)
+    def __getLen2(self, order=BYTE_ALIGN_MOTOROLA):
+        # 0x4d4d for MM / 0x4949 for II.
+        lenLow = self.__getcToOrd()
+        lenHigh = self.__getcToOrd()
+        if order == BYTE_ALIGN_MOTOROLA:
+            return lenLow << 8 | lenHigh
+        else:
+            return lenLow | lenHigh << 8
+
+    def __getLen4(self, order=BYTE_ALIGN_MOTOROLA):
+        # 0x4d4d for MM / 0x4949 for II.
+        lenLL = self.__getcToOrd()
+        lenLH = self.__getcToOrd()
+        lenHL = self.__getcToOrd()
+        lenHH = self.__getcToOrd()
+        if order == BYTE_ALIGN_MOTOROLA:
+            return lenLL << 24 | lenLH << 16 | lenHL << 8 | lenHH
+        else:
+            return lenLL | lenLH << 8 | lenHL << 16 | lenHH << 24
+
+    def __parseBasicIFD(self):
+        if not self._file:
+            assert False
+        pass
+
+    def __parseAPP1(self, base, start, end):
+        if not self._file:
+            assert False
+
+        self._file.seek(base)
+        order = self.__getLen2()
+        print "[APP1]...order=",hex(order)
+        if order not in [BYTE_ALIGN_MOTOROLA, BYTE_ALIGN_INTEL]:
+            print "[APP1]...order incorrect"
+            assert False
+
+        check = self.__getLen2(order)
+        if check != 0x002a:
+            assert False
+
+        offsetToIFD = self.__getLen4(order)
+        print "[APP1]...offsetToIFD =",hex(offsetToIFD)
+        self._file.seek(base+offsetToIFD)
+
+    def __parseXMP(self):
+        if not self._file:
+            assert False
+
+    def parse(self, filePath):
+        self._file = open(filePath)
+        self._file.seek(0)
+        first = self.__getcToOrd()
+        marker = self.__getcToOrd()
         if (first != 0xff or marker != JPEG_SOI):
             assert False, "Not in JPEG format !!"
 
         while (marker):
-            first = getcToOrd(fObj)
+            first = self.__getcToOrd()
             if first != 0xff or first < 0:
                 break
-            marker = getcToOrd(fObj)
+            marker = self.__getcToOrd()
             print hex(first), hex(marker)
-            len = getLen(fObj)
-            curPos = fObj.tell()
+            len = self.__getLen2()
+            curPos = self._file.tell()
             print "len= %d, curPos=%d"%(len,curPos)
             if marker in [JPEG_EOI, JPEG_SOS]:
                 print "EOI or SOS ... exit parsing"
                 break
             elif marker == JPEG_APP0:
-                print "app0"
+                print "[APP0]..."
                 pass # TBD
             elif marker == JPEG_APP1:
-                print "app1"
-                pass # TBD
+                print "[APP1]..."
+                header = self._file.read(4)
+                print "[APP1]...header=%s"%(header)
+                if header.lower() == 'exif':
+                    self.__parseAPP1(curPos+6, curPos, curPos+len-2)
+                elif header.lower() == 'http':
+                    pass
+
             elif marker == JPEG_APP2:
-                print "app2"
+                print "[APP2]..."
                 pass # TBD
             elif marker == JPEG_APP13:
-                print "app13"
+                print "[APP13]"
                 pass # TBD
-            fObj.seek(curPos+len-2)
+            self._file.seek(curPos+len-2)
 
 import os
 fPath = "./images/tampa_AdobeRGB.jpg"
