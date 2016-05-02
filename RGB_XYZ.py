@@ -1,6 +1,6 @@
 # http://www.brucelindbloom.com/index.html?Eqn_RGB_XYZ_Matrix.html
-from ColorChannelInst import ColorChannelInstance, WPD65, WPD50
-from EXIF_ColorProfileParser import getChromaticAdaptationMat
+from ColorChannelInst import createColorChannelInstance, WPD65, WPD50, WORKSPACE_CIEXYZ
+from EXIF_ColorProfileParser import getChromaticAdaptationMat, CHROMATIC_ADAPTION_BRADFORD
 """
  D65 =====================================================
 """
@@ -93,8 +93,12 @@ def RGBtoXYZ(ccInst):
             inputWP, inputGamma)
         return None
 
-    newCCInst = ColorChannelInstance(w, h, None, comp='XYZ', ws='CIEXYZ',\
-                                     wp=inputWP)
+    newCCInst = createColorChannelInstance(package={'w':w,
+                                                    'h':h,
+                                                    'comp':'XYZ',
+                                                    'ws':WORKSPACE_CIEXYZ,
+                                                    'wp':inputWP})
+
     for y in range(h):
         for x in range(w):
             R,G,B = ccInst[x,y]
@@ -110,10 +114,11 @@ def RGBtoXYZ(ccInst):
 
     return newCCInst
 
-def XYZ_WPTransform(ccInst, targetWP=WPD65):
+def XYZ_WPTransform(ccInst, targetWP):
     w, h = ccInst.size[0], ccInst.size[1]
     inputWP = ccInst.getWhitePoint()
-    matrix = getChromaticAdaptationMat('Bradford', inputWP, targetWP)
+    matrix = getChromaticAdaptationMat(CHROMATIC_ADAPTION_BRADFORD, inputWP,\
+                                       targetWP)
 
     if inputWP == targetWP:
         print "Input white point is the same as target white point, no need to transform"
@@ -122,7 +127,12 @@ def XYZ_WPTransform(ccInst, targetWP=WPD65):
         print "No chromatic adaptation matrix found, do NOT transform"
         return ccInst
 
-    newCCInst = ColorChannelInstance(w, h, None, comp='XYZ', ws='CIEXYZ', wp=targetWP)
+    newCCInst = createColorChannelInstance(package={'w':w,
+                                                    'h':h,
+                                                    'comp':'XYZ',
+                                                    'ws':WORKSPACE_CIEXYZ,
+                                                    'wp':targetWP})
+
     for y in range(h):
         for x in range(w):
             Xs, Ys, Zs = ccInst[x,y]
@@ -140,7 +150,12 @@ def XYZtoRGB(ccInst, ws='sRGB', wp=None):
     inputWP = ccInst.getWhitePoint()
     targetWP = wp if wp != None else inputWP
     targetWS = ws if ws != 'sRGB' else 'sRGB'
-    newCCInst = ColorChannelInstance(w, h, None, comp='RGB', ws=targetWS, wp=targetWP)
+
+    newCCInst = createColorChannelInstance(package={'w':w,
+                                                    'h':h,
+                                                    'comp':'RGB',
+                                                    'ws':targetWS,
+                                                    'wp':targetWP})
 
     matrix = dicWPXYZtoRGBMartix.get(targetWP, {}).get(targetWS, {})
     targetGamma = dictGammaValue.get(targetWS, 0)

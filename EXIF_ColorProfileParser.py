@@ -25,8 +25,11 @@ dicXYZScaling = { WPD65 : { WPD50 : D65toD50_XYZScaling },
 dicBradford = { WPD65 : { WPD50 : D65toD50_Bradford },
                 WPD50 : { WPD65 : D50toD65_Bradford }}
 
-dicChromaticAdaptation = { 'XYZScaling' : dicXYZScaling,
-                           'Bradford'   : dicBradford}
+CHROMATIC_ADAPTION_XYZSCALING     = 'XYZScaling'
+CHROMATIC_ADAPTION_BRADFORD       = 'Bradford'
+
+dicChromaticAdaptation = { CHROMATIC_ADAPTION_XYZSCALING : dicXYZScaling,
+                           CHROMATIC_ADAPTION_BRADFORD   : dicBradford}
 
 def getChromaticAdaptationMat(method, fromWP, toWP):
     if fromWP == toWP:
@@ -87,9 +90,11 @@ def get_metadata_by_exiftool(filePath):
     # - "Profile Connection Space"
     return dicMeta
 
-#fPath = "./Sample.JPG"
+"""
+fPath = "./Sample.JPG"
 fPath = "./images/tampa_AdobeRGB.jpg"
 fullPath = os.path.abspath(fPath)
 print fullPath
 meta = get_metadata_by_exiftool(fullPath)
 print meta
+"""

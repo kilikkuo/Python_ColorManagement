@@ -3,9 +3,10 @@ import pyopencl as cl
 import math
 from time import time, sleep
 from PIL import Image
-from ColorChannelInst import ColorChannelInstance, DisplayCCInst, WPD50, WPD65,\
-                             WORKSPACE_sRGB, WORKSPACE_ProPhotoRGB, WORKSPACE_AdobeRGB
-from EXIF_ColorProfileParser import get_exif_by_exifread, get_exif_by_PIL
+from ColorChannelInst import ColorChannelInstance, displayCCInst, WPD50, WPD65,\
+                             WORKSPACE_sRGB, WORKSPACE_ProPhotoRGB, WORKSPACE_AdobeRGB,\
+                             createCCInstTemp
+from EXIF_ColorProfileParser import get_metadata_by_exiftool
 from RGB_XYZ import XYZtoRGB, RGBtoXYZ, XYZ_WPTransform
 
 def loadImage(path):
@@ -55,31 +56,36 @@ def rgb_to_yuv_to_rgb_gpu(img):
 def main():
     # Set demoAdobeRGB2sRGB=True is to verify that the python CMM transformation
     # result is correct as using pillImageCms
-    demoAdobeRGB2sRGB = True
+    demoAdobeRGB2sRGB = False
+    demosRGB2ProphotoRBG = not demoAdobeRGB2sRGB
 
-    fPath = "./Sample.JPG"
-    if demoAdobeRGB2sRGB:
-        fPath = "./images/tampa_AdobeRGB.jpg"
-
-    img = loadImage(fPath)
-    oriImg = None
-    if demoAdobeRGB2sRGB:
-        oriImg = ColorChannelInstance(img.size[0], img.size[1], img, ws=WORKSPACE_AdobeRGB)
-        DisplayCCInst(oriImg)
-    else:
-        oriImg = ColorChannelInstance(img.size[0], img.size[1], img)
+    fPath = "./Sample.JPG" if not demoAdobeRGB2sRGB else "./images/tampa_AdobeRGB.jpg"
+    # TODO : Leverage metadata parser to identify the color space information
+    oriImg = createCCInstTemp(fPath, demoAdobeRGB2sRGB)
+    #displayCCInst(oriImg)
 
     xyzFromOriginWP = RGBtoXYZ(oriImg)
-    xyzToTargetWP = XYZ_WPTransform(xyzFromOriginWP)
+
+    xyzToTargetWP = None
+    if demoAdobeRGB2sRGB:
+        xyzToTargetWP = XYZ_WPTransform(xyzFromOriginWP, targetWP=WPD65)
+    else:
+        if demosRGB2ProphotoRBG:
+            #xyzToTargetWP = XYZ_WPTransform(xyzFromOriginWP, targetWP=WPD50)
+            xyzToTargetWP = XYZ_WPTransform(xyzFromOriginWP, targetWP=WPD65)
+        else:
+            assert False, "Not decided yet."
 
     newRGB = None
     if demoAdobeRGB2sRGB:
         newRGB = XYZtoRGB(xyzToTargetWP, ws=WORKSPACE_sRGB, wp=WPD65)
     else:
-        newRGB = XYZtoRGB(xyzToTargetWP, ws=WORKSPACE_ProPhotoRGB, wp=WPD50)
-    DisplayCCInst(newRGB)
+        #newRGB = XYZtoRGB(xyzToTargetWP, ws=WORKSPACE_ProPhotoRGB, wp=WPD50)
+        newRGB = XYZtoRGB(xyzToTargetWP, ws=WORKSPACE_sRGB, wp=WPD65)
+    displayCCInst(newRGB)
 
     # A implementation to test rgb to yuv to rgb performance
+    #img = loadImage(fPath)
     #rgb_to_yuv_to_rgb_gpu(img)
     #rgb_to_yuv_to_rgb_cpu(img)
     pass
