@@ -31,6 +31,26 @@ CHROMATIC_ADAPTION_BRADFORD       = 'Bradford'
 dicChromaticAdaptation = { CHROMATIC_ADAPTION_XYZSCALING : dicXYZScaling,
                            CHROMATIC_ADAPTION_BRADFORD   : dicBradford}
 
+LIST_sRGB_D65_WHITE_POINT       = [0.950455927, 1.0, 1.089057751]
+LIST_AdobeRGB_D65_WHITE_POINT   = [0.95045, 1.0, 1.08905]
+LIST_ICC_D50_WHITE_POINT        = [0.9642, 1.0, 0.8249]
+
+
+def getWPByWPMatrix(strMatrix):
+    lstInput = strMatrix.split(' ')
+    X = float(lstInput[0])
+    Y = float(lstInput[1])
+    Z = float(lstInput[2])
+    if abs(X-LIST_sRGB_D65_WHITE_POINT[0]) <= 0.0001 and\
+       abs(Y-LIST_sRGB_D65_WHITE_POINT[1]) == 0 and\
+       abs(Z-LIST_sRGB_D65_WHITE_POINT[2]) <= 0.001:
+       return "D65"
+    elif abs(X-LIST_ICC_D50_WHITE_POINT[0]) <= 0.0001 and\
+       abs(Y-LIST_ICC_D50_WHITE_POINT[1]) == 0 and\
+       abs(Z-LIST_ICC_D50_WHITE_POINT[2]) <= 0.001:
+       return "D50"
+    assert False, "Not implementated yet"
+
 def getChromaticAdaptationMat(method, fromWP, toWP):
     if fromWP == toWP:
         return []

@@ -22,22 +22,31 @@ def loadImage(path):
     print "-" * 20
     return img
 
-def createCCInstTemp(fPath, isAdobe):
-    # TODO : This function will be removed after metadata can be parsed and assigend
-    #        to CCInst during creation
-    if isAdobe:
-        img = loadImage(fPath)
-        return ColorChannelInstance(img.size[0], img.size[1], img, ws=WORKSPACE_AdobeRGB)
-    else:
-        return createColorChannelInstance(fPath=fPath)
+def createCCInstTemp(fPath):
+    return createColorChannelInstance(fPath=fPath)
 
 def createColorChannelInstance(fPath=None, imgData=None, package={}):
     assert not (fPath == None and imgData == None and package == {})
     ccInst = None
     if fPath and not imgData and not package:
+        from EXIF_ColorProfileParser import get_metadata_by_exiftool,\
+            getWPByWPMatrix, LIST_sRGB_D65_WHITE_POINT
         img = loadImage(fPath)
-        #meta = get_metadata_by_exiftool(fPath)
-        ccInst = ColorChannelInstance(img.size[0], img.size[1], img)
+        meta = get_metadata_by_exiftool(fPath)
+
+        ws = meta.get('Color Space', None)
+        if meta.get('Color Space', None) == 0:
+            ws = WORKSPACE_sRGB
+        elif meta.get('Color Space', None) == "Uncalibrated":
+            pDesc = meta.get('Profile Description', None)
+            iccProfileName = meta.get('ICC Profile Name', None)
+            if pDesc.find('Adobe RGB') >=0 or iccProfileName.find('Adobe RGB') >= 0:
+                ws = WORKSPACE_AdobeRGB
+
+        strMWP = meta.get('Media White Point', str(LIST_sRGB_D65_WHITE_POINT))
+        mwp = getWPByWPMatrix(strMWP)
+
+        ccInst = ColorChannelInstance(img.size[0], img.size[1], img, ws=ws, wp=mwp)
     elif imgData and not fPath and not package:
         ccInst = ColorChannelInstance(imgData.size[0], imgData.size[1], imgData)
     elif package and not imgData and not fPath:

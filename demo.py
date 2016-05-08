@@ -6,7 +6,6 @@ from PIL import Image
 from ColorChannelInst import ColorChannelInstance, displayCCInst, WPD50, WPD65,\
                              WORKSPACE_sRGB, WORKSPACE_ProPhotoRGB, WORKSPACE_AdobeRGB,\
                              createCCInstTemp
-from EXIF_ColorProfileParser import get_metadata_by_exiftool
 from RGB_XYZ import XYZtoRGB, RGBtoXYZ, XYZ_WPTransform
 
 def loadImage(path):
@@ -56,32 +55,20 @@ def rgb_to_yuv_to_rgb_gpu(img):
 def main():
     # Set demoAdobeRGB2sRGB=True is to verify that the python CMM transformation
     # result is correct as using pillImageCms
-    demoAdobeRGB2sRGB = False
-    demosRGB2ProphotoRBG = not demoAdobeRGB2sRGB
+    demosRGB2ProphotoRBG = True
 
-    fPath = "./Sample.JPG" if not demoAdobeRGB2sRGB else "./images/tampa_AdobeRGB.jpg"
-    # TODO : Leverage metadata parser to identify the color space information
-    oriImg = createCCInstTemp(fPath, demoAdobeRGB2sRGB)
+    #fPath = "./images/Sample.JPG"
+    fPath = "./images/tampa_AdobeRGB.jpg"
+    oriImg = createCCInstTemp(fPath)
     #displayCCInst(oriImg)
 
     xyzFromOriginWP = RGBtoXYZ(oriImg)
 
-    xyzToTargetWP = None
-    if demoAdobeRGB2sRGB:
-        xyzToTargetWP = XYZ_WPTransform(xyzFromOriginWP, targetWP=WPD65)
-    else:
-        if demosRGB2ProphotoRBG:
-            #xyzToTargetWP = XYZ_WPTransform(xyzFromOriginWP, targetWP=WPD50)
-            xyzToTargetWP = XYZ_WPTransform(xyzFromOriginWP, targetWP=WPD65)
-        else:
-            assert False, "Not decided yet."
+    tarWP = WPD50 if demosRGB2ProphotoRBG else WPD65
+    xyzToTargetWP = XYZ_WPTransform(xyzFromOriginWP, targetWP=tarWP)
 
-    newRGB = None
-    if demoAdobeRGB2sRGB:
-        newRGB = XYZtoRGB(xyzToTargetWP, ws=WORKSPACE_sRGB, wp=WPD65)
-    else:
-        #newRGB = XYZtoRGB(xyzToTargetWP, ws=WORKSPACE_ProPhotoRGB, wp=WPD50)
-        newRGB = XYZtoRGB(xyzToTargetWP, ws=WORKSPACE_sRGB, wp=WPD65)
+    tarWS = WORKSPACE_ProPhotoRGB if demosRGB2ProphotoRBG else WORKSPACE_sRGB
+    newRGB = XYZtoRGB(xyzToTargetWP, ws=tarWS, wp=tarWP)
     displayCCInst(newRGB)
 
     # A implementation to test rgb to yuv to rgb performance
