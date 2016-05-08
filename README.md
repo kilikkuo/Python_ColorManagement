@@ -1,4 +1,4 @@
-# PyOpenCL_CMM
+# Python_ColorManagement
 
 GOAL : Make a color management system in python and improve performance by
        PyOpenCL
@@ -11,6 +11,8 @@ Stage
             2) python module "PIL".
             3) cross-platform executable "exiftool" under ./Image-ExifTool-10.15/
                Downloaded from http://www.sno.phy.queensu.ca/~phil/exiftool/index.html
+            4) a JPEGMetadataParser via python
+               https://github.com/kilikkuo/JPEGMetadataParser
 
  - Need to define all required transformation matrics.
    http://www.brucelindbloom.com/index.html?Eqn_RGB_XYZ_Matrix.html
@@ -24,3 +26,6 @@ Stage
  - https://goo.gl/nSyWz8
 
 # Images used under ./images/ are copied & modified (for programming test) from https://www.flickr.com/photos/boston_public_library/8102625287/in/photostream/
+
+# Usage
+$> python demo.py
