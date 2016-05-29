@@ -52,30 +52,37 @@ def rgb_to_yuv_to_rgb_gpu(img):
     img.show()
     pass
 
-def main():
-    # Set demoAdobeRGB2sRGB=True is to verify that the python CMM transformation
-    # result is correct as using pillImageCms
-    demosRGB2ProphotoRBG = True
+def main(iPath, tWS, tWP, oPath=None):
+    assert iPath != None, "Input file is required !"
 
-    #fPath = "./images/Sample.JPG"
-    fPath = "./images/tampa_AdobeRGB.jpg"
-    oriImg = createCCInstTemp(fPath)
+    oriImg = createCCInstTemp(iPath)
     #displayCCInst(oriImg)
 
     xyzFromOriginWP = RGBtoXYZ(oriImg)
 
-    tarWP = WPD50 if demosRGB2ProphotoRBG else WPD65
-    xyzToTargetWP = XYZ_WPTransform(xyzFromOriginWP, targetWP=tarWP)
+    xyzToTargetWP = XYZ_WPTransform(xyzFromOriginWP, targetWP=tWP)
 
-    tarWS = WORKSPACE_ProPhotoRGB if demosRGB2ProphotoRBG else WORKSPACE_sRGB
-    newRGB = XYZtoRGB(xyzToTargetWP, ws=tarWS, wp=tarWP)
+    newRGB = XYZtoRGB(xyzToTargetWP, ws=tWS, wp=tWP)
     displayCCInst(newRGB)
 
+    if oPath != None:
+        oImg = Image.new('RGB', ccInst.size)
+        oImg.putdata(ccInst.data)
+        oImg.save(oPath)
+
     # A implementation to test rgb to yuv to rgb performance
-    #img = loadImage(fPath)
+    #img = loadImage(iPath)
     #rgb_to_yuv_to_rgb_gpu(img)
     #rgb_to_yuv_to_rgb_cpu(img)
     pass
 
+import argparse
 if __name__ == '__main__':
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-i', '--input', help='Input file to be converted')
+    parser.add_argument('-ocs', '--output-colorspace', help='Color space for output file(default:WORKSPACE_sRGB)', default=WORKSPACE_sRGB)
+    parser.add_argument('-owp', '--output-whitepoint', help='Ref White point for output file(default:WPD65)', default=WPD65)
+    parser.add_argument('-o', '--output', help='Output file for convreted result, e.g. /PATH_TO_OUTPUT/FILENAME.EXT')
+    args = parser.parse_args()
+
+    main(args.input, args.output_colorspace, args.output_whitepoint, args.output)

@@ -43,7 +43,8 @@ def createColorChannelInstance(fPath=None, imgData=None, package={}):
             if pDesc.find('Adobe RGB') >=0 or iccProfileName.find('Adobe RGB') >= 0:
                 ws = WORKSPACE_AdobeRGB
 
-        strMWP = meta.get('Media White Point', str(LIST_sRGB_D65_WHITE_POINT))
+        strMWP = meta.get('Media White Point',\
+                          ' '.join(str(item) for item in LIST_sRGB_D65_WHITE_POINT))
         mwp = getWPByWPMatrix(strMWP)
 
         ccInst = ColorChannelInstance(img.size[0], img.size[1], img, ws=ws, wp=mwp)
