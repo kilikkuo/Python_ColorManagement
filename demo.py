@@ -54,7 +54,6 @@ def rgb_to_yuv_to_rgb_gpu(img):
 
 def main(iPath, tWS, tWP, oPath=None):
     assert iPath != None, "Input file is required !"
-    print tWS, tWP
     oriImg = createCCInstTemp(iPath)
     #displayCCInst(oriImg)
 
