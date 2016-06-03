@@ -54,7 +54,7 @@ def rgb_to_yuv_to_rgb_gpu(img):
 
 def main(iPath, tWS, tWP, oPath=None):
     assert iPath != None, "Input file is required !"
-
+    print tWS, tWP
     oriImg = createCCInstTemp(iPath)
     #displayCCInst(oriImg)
 
@@ -80,8 +80,8 @@ import argparse
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-i', '--input', help='Input file to be converted')
-    parser.add_argument('-ocs', '--output-colorspace', help='Color space for output file(default:WORKSPACE_sRGB)', default=WORKSPACE_sRGB)
-    parser.add_argument('-owp', '--output-whitepoint', help='Ref White point for output file(default:WPD65)', default=WPD65)
+    parser.add_argument('-ocs', '--output-colorspace', help='Color space for output file(default:sRGB)', default=WORKSPACE_sRGB)
+    parser.add_argument('-owp', '--output-whitepoint', help='Ref White point for output file(default:D65)', default=WPD65)
     parser.add_argument('-o', '--output', help='Output file for convreted result, e.g. /PATH_TO_OUTPUT/FILENAME.EXT')
     args = parser.parse_args()
 
