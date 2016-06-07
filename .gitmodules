@@ -1,0 +1,3 @@
+[submodule "parsers/JPEGMetadataParser"]
+	path = parsers/JPEGMetadataParser
+	url = git@github.com:kilikkuo/JPEGMetadataParser.git
