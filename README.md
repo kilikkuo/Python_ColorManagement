@@ -25,15 +25,17 @@ Stage
 3. Bridge 2 via kernel-mapper (A tool to simplify the use of PyOpenCL)
  - https://goo.gl/nSyWz8
 
-# Images used under ./images/ are copied & modified (for programming test) from https://www.flickr.com/photos/boston_public_library/8102625287/in/photostream/
-http://dev.exiv2.org/attachments/download/820/Reagan.jpg
-http://www.myriad-online.com/cgi-bin/bbs/YaBB.pl?board=galerie;action=display;num=1141256379
+# Images used under ./images/ are copied & modified (for programming test) from
+ https://www.flickr.com/photos/boston_public_library/8102625287/in/photostream/
+ http://dev.exiv2.org/attachments/download/820/Reagan.jpg
+ http://www.myriad-online.com/cgi-bin/bbs/YaBB.pl?board=galerie;action=display;num=1141256379
 
 # Prepare dependences after clone
-  $> git submodule init
-  $> git submodule update
+ $> git submodule init
+ $> git submodule update
 
 # Usage
-e.g. 1) $> python demo.py --help
-     2) $> python demo.py -i PATH_TO_INPUT -ocs sRGB -owp D65
-     3) $> python demo.py -i PATH_TO_INPUT -ocs ProPhotoRGB -owp D50 -o PATH_TO_OUTPUT
+e.g.
+ 1) $> python demo.py --help
+ 2) $> python demo.py -i PATH_TO_INPUT -ocs sRGB -owp D65
+ 3) $> python demo.py -i PATH_TO_INPUT -ocs ProPhotoRGB -owp D50 -o PATH_TO_OUTPUT
